@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Customer Record</h1>
+<br/>
+
+<div class="card" style="width: 23rem;">
+    <div class="card-header">
+        <h3>{{ customer_record.name }}</h3>
+    </div>
+    
+    <ul class="list-group list-group-flush">
+        <ol class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Phone</div>
+                {{ customer_record.phone}}
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Email</div>
+                {{ customer_record.email}}
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Addres</div>
+                    {{ customer_record.address}}
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                  <div class="fw-bold">Created</div>
+                  {{ customer_record.date_created}}
+                </div>
+              </li>
+          </ol>
+    </ul>
+</div>    
+
+<br/>
+<a href="{% url 'home' %}" class="btn btn-primary">Back</a>
+{% endblock %}

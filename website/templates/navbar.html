@@ -1,0 +1,75 @@
+<!-- FILEPATH -->
+<!-- This code performs a specific task. -->
+<!-- It takes the selection and adds a documentation comment to it. -->
+<!-- The documentation comment provides information about the purpose and functionality of the code. -->
+<!-- It helps other developers understand how to use and modify the code. -->
+<!-- Please note that this is a placeholder comment and should be replaced with actual documentation. -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">Dogtores CRM</a>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'home' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary"  style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" name="Logout" value="Logout">Logout</button>
+            </form>
+        </div>
+        
+            {% else %}
+        <div>    
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+{% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="nav navbar-nav nav-underline">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Actas Pangea
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'actas' %}">Actas</a></li>
+                  <li><a class="dropdown-item" href="{% url 'generar_actas' %}">Generar Actas</a></li>
+                </ul>
+            </li>  
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Solicitudes bodiweb
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'bodiweb' %}">Plantilla bodiweb</a></li>
+                  <li><a class="dropdown-item" href="#">Reporte-Mats</a></li>
+                  <li><a class="dropdown-item" href="#">Reporte-MB25</a></li>
+                </ul>
+            </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>   
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+{% endif %}
+
