@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+<h1>Editar detalle de ACTAS</h1>
+<br/>
+
+<form method="POST" class="row gy-2 gx-3 align-items-center">
+	{% csrf_token %}
+
+	{{ form.as_p }}
+
+<br/>
+  <button type="submit" class="btn btn-secondary">Update Record</button>
+
+</form>
+
+
+</div>
+
+{% endblock %}

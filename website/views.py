@@ -2,13 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import SignUpForm
-from .models import Record
 
 # Create your views here.
 
 def home(request):
-    # Get all the records
-    records = Record.objects.all()
 
     if request.method == "POST":
         # Check if user is logging in
@@ -36,7 +33,7 @@ def home(request):
             return redirect('home')
     else:
 
-        return render(request, 'home.html', {'records': records})
+        return render(request, 'home.html')
 
 
 def register_user(request):
@@ -77,17 +74,3 @@ def register_user(request):
     
     #Using this, it keeps the username and the email in the form after the user submits the form with invalid information
     return render(request, 'register.html', {'form': form})     
-    
-
-def customer_record(request, pk):
-
-    if request.user.is_authenticated:
-        # Get the record
-        customer_record = Record.objects.get(id=pk)
-
-        # Send the record to the template
-        return render( request, 'record.html', {'customer_record': customer_record} )
-    
-    else:
-        messages.error(request, "Please login to view this record.")
-        return redirect('home')

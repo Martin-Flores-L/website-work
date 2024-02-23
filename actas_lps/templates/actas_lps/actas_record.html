@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="width: 20rem;">
+  <div class="card-header"><strong>
+        Orden de Compra: {{ record_actas.oc }}</strong>
+  </div>
+  <ol class="list-group list-group-numbered">
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Contrata</div>
+        {{ record_actas.EECC}}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">IP HIJO</div>
+        {{ record_actas.IP_Hijo }}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Monto total Orden de compra</div>
+        {{ record_actas.total_OC }}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Monto total certificado</div>
+        {{ record_actas.total_certificar }}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Termino de obra</div>
+        {{ record_actas.termino_obra|date:"d/m/Y" }}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Servicio de obra</div>
+        {{ record_actas.servicio_obra|date:"d/m/Y" }}
+      </div>
+      
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">Posiciones</div>
+        {{ record_actas.posiciones }}
+      </div>
+      
+    </li>
+  </ol>
+</div>
+  
+  <br/>
+  <br/>
+
+<a href="{% url 'actas_update' record_actas.id %}" class="btn btn-secondary">Update Record</a>
+
+<a href="{% url 'actas_delete' record_actas.id %}" class="btn btn-secondary">Delete Record</a>
+{% endblock %}

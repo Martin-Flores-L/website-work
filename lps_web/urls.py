@@ -23,4 +23,5 @@ urlpatterns = [
     path('', include("website.urls")),
     path('', include("actas_lps.urls")),
     path('', include("bodiweb_request.urls")),
+    path('', include("ospquery.urls")),
 ]

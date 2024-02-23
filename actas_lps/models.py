@@ -13,15 +13,15 @@ class actas_bd(models.Model):
     """
     Model representing actas_bd table in the database.
     """
-    eecc = models.CharField(max_length=100)
-    project = models.CharField(max_length=100)
-    oc = models.BigIntegerField()
-    ip_hijo = models.CharField(max_length=100)
+    EECC = models.CharField(max_length=100)
+    Proyecto = models.CharField(max_length=100)
+    OC = models.BigIntegerField()
+    IP_Hijo = models.CharField(max_length=100)
     total_OC = models.FloatField()
     total_certificar = models.FloatField()
     termino_obra = models.DateField()
     servicio_obra = models.DateField()
-    posiciones = models.CharField(max_length=100)
+    posiciones = models.CharField(max_length=100, blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

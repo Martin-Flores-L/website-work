@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'website',
     'actas_lps',
     'bodiweb_request',
+    'ospquery',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
