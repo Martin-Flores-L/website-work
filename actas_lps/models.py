@@ -28,7 +28,7 @@ class actas_bd(models.Model):
         """
         Returns a string representation of the object.
         """
-        return (f"{self.eecc} - {self.project} - {self.oc} - {self.ip_hijo} - {self.total_OC} - {self.total_certificar} - {self.termino_obra} - {self.servicio_obra} - {self.posiciones} - {self.date_created}")
+        return (f"{self.pk} - {self.EECC} - {self.Proyecto} - {self.OC} - {self.IP_Hijo} - {self.total_OC} - {self.total_certificar} - {self.termino_obra} - {self.servicio_obra} - {self.posiciones} - {self.date_created}")
 
 
 class csv_files(models.Model):

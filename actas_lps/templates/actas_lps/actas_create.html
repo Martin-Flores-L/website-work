@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}<!-- actas_create.html -->
+
+<div class="col-md-6 offset-md-3">
+  <h1>Generar Acta</h1>
+    <form action="{% url 'actas_create' %}" method="POST" class="row gy-2 gx-3 align-items-center">
+      {% csrf_token %}
+  
+      {{ form.as_p}}<!-- Add your form fields here -->
+    </br>
+      <button type="submit" class="btn btn-secondary">Registrar Acta</button>
+    </form>
+</div>
+{% endblock %}

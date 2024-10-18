@@ -22,6 +22,8 @@ def actas_view(request):
     """
     bd_records = ActasModel.objects.all()
 
+    bd_records = bd_records.order_by('date_created')
+
     for record in bd_records:
          if record.posiciones == 'nan':
              record.posiciones = ''
@@ -70,7 +72,7 @@ def csv_files(request):
         my_model = CsvFilesModel(file=file)
         my_model.save()
         request.session['file_uploaded'] = True
-        return JsonResponse({'message': 'File uploaded successfully!'})
+        return JsonResponse({'message': 'File uploaded successfully!'})  
     else:
         return redirect('generar_actas')
 
@@ -183,6 +185,8 @@ def save_data(request):
         messages.error(request, "Necesitas subir un archivo primero.")
         return redirect('generar_actas')
     
+#Actas views
+
 
 def actas_record(request, pk):
 
@@ -208,7 +212,7 @@ def actas_update(request, pk):
 			return redirect('actas')
 		return render(request, 'actas_lps/actas_updated.html', {'form':form})
 	else:
-		messages.success(request, "You Must Be Logged In...")
+		messages.error(request, "You Must Be Logged In...")
 		return redirect('home')
 
 
@@ -219,8 +223,21 @@ def actas_delete(request, pk):
 		messages.success(request, "Record Deleted Successfully...")
 		return redirect('actas')
 	else:
-		messages.success(request, "You Must Be Logged In To Do That...")
+		messages.error(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
+     
+     
+def actas_create(request):
+    if request.user.is_authenticated:
+        form = BdActasForm(request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Record Has Been Created!")
+            return redirect('actas')
+        return render(request, 'actas_lps/actas_create.html', {'form':form})
+    else:
+        messages.error(request, "You Must Be Logged In To Do That...")
+        return redirect('home')
 
 
 @csrf_exempt
@@ -229,24 +246,137 @@ def multiple_select(request):
         if request.method == 'POST':
             selected_pks = request.POST.getlist('pks')
             selected_pks = [int(pk) for pk in selected_pks]
+
+            if len(selected_pks) > 0:
+                if request.POST.get('delete'):
+                    deletes_multiple = ActasModel.objects.filter(pk__in=selected_pks)
+                    deletes_multiple.delete()
+                    messages.success(request, "Acta eliminada con exito...")
+                    return redirect('actas')
             
-            if request.POST.get('delete'):
-                deletes_multiple = ActasModel.objects.filter(pk__in=selected_pks)
-                deletes_multiple.delete()
-                messages.success(request, "Record Deleted Successfully...")
+                elif request.POST.get('print'):
+                    df = pd.DataFrame(list(ActasModel.objects.filter(pk__in=selected_pks).values()), columns=['id','EECC', 'Proyecto', 'OC', 'IP_Hijo', 'total_OC', 'total_certificar', 'termino_obra', 'servicio_obra', 'posiciones', 'date_created'])
+                    print(df)
+                    df_to_xlsx = PrintedActasModel(df)
+                    df_to_xlsx.print_actas()
+                    df_to_xlsx.created_excel_files_zip()
+                    response = FileResponse(open('actas_lps/printed_xls/zip_files/excel_files.zip', 'rb'))
+                    response['Content-Disposition'] = 'attachment; filename="excel_files.zip"'
+                    messages.success(request, "Imprimiendo Actas seleccionadas")
+                    return response
+                
+            else:
+                messages.success(request, "Selecciona alguna acta para poder continuar")
                 return redirect('actas')
             
-            elif request.POST.get('print'):
-                df = pd.DataFrame(list(ActasModel.objects.filter(pk__in=selected_pks).values()), columns=['id','EECC', 'Proyecto', 'OC', 'IP_Hijo', 'total_OC', 'total_certificar', 'termino_obra', 'servicio_obra', 'posiciones', 'date_created'])
-                print(df)
-                df_to_xlsx = PrintedActasModel(df)
-                df_to_xlsx.print_actas()
-                df_to_xlsx.created_excel_files_zip()
-                response = FileResponse(open('actas_lps/printed_xls/zip_files/excel_files.zip', 'rb'))
-                response['Content-Disposition'] = 'attachment; filename="excel_files.zip"'
-                return response
     else:
-        messages.success(request, "You Must Be Logged In To Do That...")
+        messages.error(request, "You Must Be Logged In To Do That...")
+        return redirect('home')
+    
+
+    # SEARCH ACTAS VIEWS
+
+def search_actas(request):
+    """
+    Renders the 'generar_actas.html' template.
+
+    Parameters:
+    - request: The HTTP request object.
+
+    Returns:
+    - A rendered HTML template.
+    """
+    if request.user.is_authenticated:
+        if 'file_uploaded' in request.session:
+            del request.session['file_uploaded']
+
+        context = {}            
+        return render(request, 'actas_lps/search_actas.html', context)
+    else:
+        messages.error(request, "Please login to view this page.")
         return redirect('home')
           
 
+def process_csv_search(request):
+    """
+    Processes the uploaded CSV file and renders the 'generar_actas.html' template with the processed data.
+
+    Parameters:
+    - request: The HTTP request object.
+
+    Returns:
+    - A rendered HTML template with the processed data.
+    """
+    if 'file_uploaded' in request.session:
+        my_model = CsvFilesModel.objects.latest('id')
+        df = my_model.m_read_csv()
+        #Search the df data in the database by OC then create a new df with a new column, if the OC is found in the database, the new column will be True, if not, False
+        df['found'] = df['OC'].isin(ActasModel.objects.values_list('OC', flat=True))
+        #get all the data from the database that matches the OC in the df
+        df_db = ActasModel.objects.filter(OC__in=df['OC'])
+
+        #convert the data from the database to a df
+        df_db = pd.DataFrame(list(df_db.values()), columns=['id','EECC', 'Proyecto', 'OC', 'IP_Hijo', 'total_OC', 'total_certificar', 'termino_obra', 'servicio_obra', 'posiciones', 'date_created'])        
+        #Merge the df and the df_db
+        df = df.merge(df_db, on='OC', how='left')
+        #Convert the id column to a int and fill the NaN values with 0
+        df['id'] = df['id'].fillna(0).astype(int)
+
+        processed_data = df.to_dict('records')
+        return render(request, 'actas_lps/search_actas.html', {'records_csv': processed_data})
+    else:
+        messages.error(request, "Sube un archivo para poder procesarlo.")
+        return redirect('search_actas')
+    
+
+def download_csv_search(request):
+     # Use the records_csv context variable to create a new CSV file and download it
+    if 'file_uploaded' in request.session:
+        my_model = CsvFilesModel.objects.latest('id')
+        df = my_model.m_read_csv()
+        df['found'] = df['OC'].isin(ActasModel.objects.values_list('OC', flat=True))
+        df_db = ActasModel.objects.filter(OC__in=df['OC'])
+        df_db = pd.DataFrame(list(df_db.values()), columns=['id','EECC', 'Proyecto', 'OC', 'IP_Hijo', 'total_OC', 'total_certificar', 'termino_obra', 'servicio_obra', 'posiciones', 'date_created'])        
+        df = df.merge(df_db, on='OC', how='left')
+        df['id'] = df['id'].fillna(0).astype(int)
+        df = df.drop_duplicates(subset=["OC","total_OC","total_certificar"])
+        df.to_csv(my_model.file.path, sep=';', encoding='latin-1', index=False)
+        response = FileResponse(open(my_model.file.path, 'rb'))
+        response['Content-Disposition'] = 'attachment; filename="searched_actas.csv"'
+        return response
+    else:
+        messages.error(request, "Sube un archivo para poder procesarlo.")
+        return redirect('search_actas')
+    
+
+def print_actas_s(request):
+    """
+    Saves the data from the last uploaded CSV file to the ActasModel and generates an Excel file.
+
+    Parameters:
+    - request: The HTTP request object.
+
+    Returns:
+    - A FileResponse object with the generated Excel file.
+    """
+    if 'file_uploaded' in request.session:
+        my_model = CsvFilesModel.objects.latest('id')
+        df = my_model.m_read_csv()
+        df['found'] = df['OC'].isin(ActasModel.objects.values_list('OC', flat=True))
+        df_db = ActasModel.objects.filter(OC__in=df['OC'])
+        df_db = pd.DataFrame(list(df_db.values()), columns=['id','EECC', 'Proyecto', 'OC', 'IP_Hijo', 'total_OC', 'total_certificar', 'termino_obra', 'servicio_obra', 'posiciones', 'date_created']) 
+        #Erase duplicated in csv
+        df_db.drop_duplicates(subset=["OC","total_OC","total_certificar"])
+        print(df_db)
+        df_to_xlsx = PrintedActasModel(df_db)
+        df_to_xlsx.print_actas()
+        df_to_xlsx.created_excel_files_zip()
+        my_model.delete()
+        response = FileResponse(open('actas_lps/printed_xls/zip_files/excel_files.zip', 'rb'))
+        response['Content-Disposition'] = 'attachment; filename="excel_files.zip"'
+        return response
+    else:
+        messages.error(request, "Necesitas subir un archivo primero.")
+        return redirect('search_actas') 
+     
+     

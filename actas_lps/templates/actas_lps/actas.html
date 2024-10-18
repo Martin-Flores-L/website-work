@@ -15,8 +15,8 @@
             <input name="delete" type="submit" value="Eliminar actas" class="btn btn-primary" id="liveToastBtn">
             <space>   </space>
             <input name="print" type="submit" value="Imprimir actas" class="btn btn-primary" id="liveToastBtn">
-            
-                
+            <space>   </space>
+            <a href="{% url 'actas_create' %}" class="btn btn-primary">Crear Acta</a>
                 <script>
                     $(document).ready(function() {
                         $('.table').DataTable({
